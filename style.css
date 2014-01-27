@@ -49,7 +49,7 @@ p {
 }
 
 .screenshot {
-	width: 700px;
+	width: 800px;
 	margin-top: 30px;
 	margin-bottom: 50px;
 }
@@ -69,7 +69,7 @@ p {
 
 	.screenshot {
 		width: 100%;
-	background-size: 100%;
+		background-size: 100%;
 	}
 
 	.small-screenshot {
