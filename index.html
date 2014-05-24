@@ -1,63 +1,79 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-    <title>Nightcode</title>
-    <meta name='viewport'
-        content='width=device-width, initial-scale=1, maximum-scale=1'>
-    <link href='style.css' type='text/css' rel='stylesheet'></link>
+	<title>Nightcode</title>
+	<meta name='viewport'
+		content='width=device-width, initial-scale=1, maximum-scale=1'>
+	<link href='style.css' type='text/css' rel='stylesheet'></link>
 </head>
 <body>
-    <a href='https://github.com/oakes/Nightcode'>
-    <img style='position: absolute; top: 0; right: 0; border: 0;'
-    src='https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png'
-    alt='Fork me on GitHub'></a>
-    <center><h1>Nightcode</h1></center>
-    <center><a href='https://github.com/oakes/Nightcode/releases/download/0.3.5/nightcode-0.3.5-standalone.jar'>Free Download (Version 0.3.5)</a></center>
-    <center class='small-text'>(JDK 7 or above required. Get it for <a href='http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html'>Windows/Mac</a> or <a href='http://openjdk.java.net/install/'>Linux</a>.)</center>
-    <br/>
-    <center>Support me by purchasing it on the <a href='https://itunes.apple.com/us/app/nightcode/id827505032?ls=1&mt=12'>Mac App Store</a> or funding me via <a href='https://www.gittip.com/oakes/'>Gittip</a> or <a href='https://blockchain.info/address/15AvbvkwGR2sPepWT8PBTZJQwUicVii84t'>Bitcoin</a>.</center>
-    <center><img src='window.png' class='screenshot' /></center>
-    <div class='section dark'>
-        <div class='step'>What is it?</div>
-        <div class='sectionbody'>Nightcode is a simple IDE for Clojure and Java projects targeting the command line, the desktop, the web, and mobile. It's just a standalone jar file that will run anywhere without being installed. Whether you choose to make a Clojure or pure Java project, Nightcode will use its built-in copy of Leiningen to build and run your code.
-        <br/><br/>
+	<a href="https://github.com/oakes/Nightcode">
+		<img style="position: absolute; top: 0; right: 0; border: 0;"
+		src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub">
+	</a>
+
+	<center><h1>Nightcode</h1></center>
+	<center><a href='https://github.com/oakes/Nightcode/releases/download/0.3.5/nightcode-0.3.5-standalone.jar'>Free Download (Version 0.3.5)</a></center>
+
+	<br/>
+	<center class='small-text'>
+		JDK 7 or above required. Get it for <a href='http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html'>Windows/Mac</a> or <a href='http://openjdk.java.net/install/'>Linux</a>.
+		<br/>
+		Support me by purchasing it on the <a href='https://itunes.apple.com/us/app/nightcode/id827505032?ls=1&mt=12'>Mac App Store</a> or funding me via <a href='https://www.gittip.com/oakes/'>Gittip</a> or <a href='https://blockchain.info/address/15AvbvkwGR2sPepWT8PBTZJQwUicVii84t'>Bitcoin</a>.
+	</center>
+	<br/>
+
+	<center><img src='window.png' class='screenshot' /></center>
+
+	<div class='section dark'>
+		<div class='step'>What is it?</div>
+		<div class='sectionbody'>Nightcode is a simple IDE for Clojure and Java projects targeting the command line, the desktop, the web, and mobile. It's just a standalone jar file that will run anywhere without being installed. Whether you choose to make a Clojure or pure Java project, Nightcode will use its built-in copy of Leiningen to build and run your code.
+		<br/><br/>
 	Join the discussion on <a href='http://www.reddit.com/r/Nightcode/'>/r/Nightcode</a> and read the <a href='https://github.com/oakes/Nightcode'>source code</a>.</div>
-    </div>
-    <div class='section dark'>
-        <div class='step'>Built-in templates</div>
-        <img src='templates.png' class='small-screenshot' />
-        <div>After hitting New Project and giving it a name, you'll be presented with ten ready-made templates. The console, game, Android, and iOS templates come in two flavors: Clojure and Java. Additionally, there is a .NET template using <a href='https://github.com/clojure/clojure-clr'>ClojureCLR</a>, a desktop template using <a href='https://github.com/daveray/seesaw'>Seesaw</a>, a web template using <a href='https://github.com/clojure/clojurescript'>ClojureScript</a>, a graphics template using <a href='https://github.com/quil/quil'>Quil</a>, a sounds templates using <a href='https://github.com/overtone/overtone'>Overtone</a>, and a database template using <a href='http://www.h2database.com/html/main.html'>H2</a>.</div>
-    </div>
-    <div class='section dark'>
-        <div class='step'>Keyboard friendly</div>
-        <img src='hints.png' class='small-screenshot' />
-        <div>Hold down the control key (or command on OS X), and you'll see shortcut hints appear over every applicable widget. Holding it while pressing Up/Down/Enter will move your selection in the project tree and expand/collapse directories. Holding it while pressing PgUp/PgDn will move between recent files, much like tabs in other IDEs but without the UI clutter.</div>
-    </div>
-    <div class='section dark'>
-        <div class='step'>Clojure</div>
-        <div class='sectionbody'>The build pane on the bottom-right gives you access to all the Leiningen commands to run, build, and test your project. With the embedded <a href='https://github.com/typedclojure/lein-typed'>lein-typed</a> plugin, the 'Test' button will automatically run type checking on projects that use Typed Clojure. Additionally, if you click a project.clj file, you'll see a 'Check Versions' button which will run <a href='https://github.com/xsc/lein-ancient'>lein-ancient</a> to look for new versions of your dependencies.
+	</div>
+
+	<div class='section dark'>
+		<div class='step'>Built-in templates</div>
+		<img src='templates.png' class='small-screenshot' />
+		<div>After hitting New Project and giving it a name, you'll be presented with ten ready-made templates. The console, game, Android, and iOS templates come in two flavors: Clojure and Java. Additionally, there is a .NET template using <a href='https://github.com/clojure/clojure-clr'>ClojureCLR</a>, a desktop template using <a href='https://github.com/daveray/seesaw'>Seesaw</a>, a web template using <a href='https://github.com/clojure/clojurescript'>ClojureScript</a>, a graphics template using <a href='https://github.com/quil/quil'>Quil</a>, a sounds templates using <a href='https://github.com/overtone/overtone'>Overtone</a>, and a database template using <a href='http://www.h2database.com/html/main.html'>H2</a>.</div>
+	</div>
+
+	<div class='section dark'>
+		<div class='step'>Keyboard friendly</div>
+		<img src='hints.png' class='small-screenshot' />
+		<div>Hold down the control key (or command on OS X), and you'll see shortcut hints appear over every applicable widget. Holding it while pressing Up/Down/Enter will move your selection in the project tree and expand/collapse directories. Holding it while pressing PgUp/PgDn will move between recent files, much like tabs in other IDEs but without the UI clutter.</div>
+	</div>
+
+	<div class='section dark'>
+		<div class='step'>Clojure</div>
+		<div class='sectionbody'>The build pane on the bottom-right gives you access to all the Leiningen commands to run, build, and test your project. With the embedded <a href='https://github.com/typedclojure/lein-typed'>lein-typed</a> plugin, the 'Test' button will automatically run type checking on projects that use Typed Clojure. Additionally, if you click a project.clj file, you'll see a 'Check Versions' button which will run <a href='https://github.com/xsc/lein-ancient'>lein-ancient</a> to look for new versions of your dependencies.
 
 	<br/><br/>The editor pane also has several integrations. In addition to syntax highlighting, Clojure and ClojureScript files also show a 'Doc' button which enables code completion thanks to the integrated <a href='https://github.com/alexander-yakushev/compliment'>compliment</a> library. There is also a 'Paredit' button, which enables the self-described <a href='http://mumble.net/~campbell/emacs/paredit.html'>mode</a> which completes parenthesis and adds advanced editing behaviors.</div>
-    </div>
-    <div class='section dark'>
-        <div class='step'>ClojureScript</div>
-        <div class='sectionbody'>With the embedded <a href='https://github.com/emezeske/lein-cljsbuild'>lein-cljsbuild</a> plugin, building ClojureScript projects is supported. Using the web template, you can build a complete web app using Clojure on the server side and ClojureScript on the client side -- all inside the same project. You'll even find an 'Auto' button in the build pane, which runs lein-cljsbuild's auto rebuild feature so your ClojureScript files rebuild every time you save them.</div>
-    </div>
-    <div class='section dark'>
-        <div class='step'>Android</div>
-        <div class='sectionbody'>With the embedded <a href='https://github.com/clojure-android/lein-droid'>lein-droid</a> plugin, building Android projects is supported (<a href='http://developer.android.com/sdk/index.html'>Android SDK</a> required, but not the ADT Bundle). The 'Run' button builds and installs your app on your connected device. The 'Build' button creates a release version of the app and lets you sign it. In addition, Android projects have a special 'LogCat' item in the sidebar, which will show your device's or emulator's logs.</div>
-    </div>
-    <div class='section dark'>
-        <div class='step'>iOS</div>
-        <div class='sectionbody'>With the embedded <a href='https://github.com/oakes/lein-fruit'>lein-fruit</a> plugin, building iOS projects is supported (Mac OS X, Xcode, <a href='http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html'>JDK 7</a>, and <a href='http://www.robovm.org/'>RoboVM</a> are required). The 'Run' button builds and runs your app in the simulator. The 'Build' button creates a release version of the app that can run on a device.</div>
-    </div>
-    <div class='section dark'>
-        <div class='step'>ClojureCLR</div>
-        <div class='sectionbody'>With the embedded <a href='https://github.com/kumarshantanu/lein-clr'>lein-clr</a> plugin, building ClojureCLR projects is supported. The built-in .NET template is the easiest way to get started. It works on Windows with a recent version of the .NET framework, as well as Unix-like systems with Mono. You will also need JDK 7 or above installed and added to the PATH, in order to run Nightcode itself.</div>
-    </div>
-    <div class='section dark'>
-        <div class='step'>Java</div>
-        <div class='sectionbody'>While it is a Clojure-based tool, Nightcode also works with pure Java projects. You can start one with one of the built-in Java templates, or you can import an existing project and it will prompt you to create a project.clj file. You'll need to edit it a little bit so Leiningen knows how to build the project.</div>
-    </div>
+	</div>
+
+	<div class='section dark'>
+		<div class='step'>ClojureScript</div>
+		<div class='sectionbody'>With the embedded <a href='https://github.com/emezeske/lein-cljsbuild'>lein-cljsbuild</a> plugin, building ClojureScript projects is supported. Using the web template, you can build a complete web app using Clojure on the server side and ClojureScript on the client side -- all inside the same project. You'll even find an 'Auto' button in the build pane, which runs lein-cljsbuild's auto rebuild feature so your ClojureScript files rebuild every time you save them.</div>
+	</div>
+
+	<div class='section dark'>
+		<div class='step'>Android</div>
+		<div class='sectionbody'>With the embedded <a href='https://github.com/clojure-android/lein-droid'>lein-droid</a> plugin, building Android projects is supported (<a href='http://developer.android.com/sdk/index.html'>Android SDK</a> required, but not the ADT Bundle). The 'Run' button builds and installs your app on your connected device. The 'Build' button creates a release version of the app and lets you sign it. In addition, Android projects have a special 'LogCat' item in the sidebar, which will show your device's or emulator's logs.</div>
+	</div>
+
+	<div class='section dark'>
+		<div class='step'>iOS</div>
+		<div class='sectionbody'>With the embedded <a href='https://github.com/oakes/lein-fruit'>lein-fruit</a> plugin, building iOS projects is supported (Mac OS X, Xcode, <a href='http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html'>JDK 7</a>, and <a href='http://www.robovm.org/'>RoboVM</a> are required). The 'Run' button builds and runs your app in the simulator. The 'Build' button creates a release version of the app that can run on a device.</div>
+	</div>
+
+	<div class='section dark'>
+		<div class='step'>ClojureCLR</div>
+		<div class='sectionbody'>With the embedded <a href='https://github.com/kumarshantanu/lein-clr'>lein-clr</a> plugin, building ClojureCLR projects is supported. The built-in .NET template is the easiest way to get started. It works on Windows with a recent version of the .NET framework, as well as Unix-like systems with Mono. You will also need JDK 7 or above installed and added to the PATH, in order to run Nightcode itself.</div>
+	</div>
+
+	<div class='section dark'>
+		<div class='step'>Java</div>
+		<div class='sectionbody'>While it is a Clojure-based tool, Nightcode also works with pure Java projects. You can start one with one of the built-in Java templates, or you can import an existing project and it will prompt you to create a project.clj file. You'll need to edit it a little bit so Leiningen knows how to build the project.</div>
+	</div>
 </body>
 </html>
