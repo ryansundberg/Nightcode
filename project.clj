@@ -26,7 +26,8 @@
                  [org.lpetit/paredit.clj "0.19.3"
                   :exclusions [org.clojure/clojure]]
                  [play-clj/lein-template "0.3.9"]
-                 [seesaw "1.4.4"]]
+                 [seesaw "1.4.4"]
+                 [redl "0.2.5-SNAPSHOT"]]
   :uberjar-exclusions [#"PHPTokenMaker\.class"
                        #"org\/apache\/lucene"]
   :resource-paths ["resources"]
