@@ -10,25 +10,57 @@
             [seesaw.core :as s])
   (:gen-class))
 
-(defn create-window
-  ([] (create-window nil))
-  ([repl-handle]
-    (let [console (editors/create-console "clj")
-          pane (repl/create-pane console)
-          frame (s/frame :title "Nightrepl"
-                     :content pane
-                     :on-close (if (some? repl-handle) :nothing :exit) ; can not close break point windows
-                     :size [800 :by 600])]
-      (repl/start-pane pane console repl-handle #(s/dispose! frame))
-      (doto frame
-        ; set various window properties
-        window/enable-full-screen!
-        window/add-listener!))))
+(defn create-root-window
+  []
+  (let [console (editors/create-console "clj")
+        pane (repl/create-pane console)
+        frame (s/frame :title "Nightrepl"
+                       :content pane
+                       :on-close :exit ; can not close break point windows
+                       :size [800 :by 600])]
+    (repl/start-pane pane console nil #(s/dispose! frame))
+    (doto frame
+      ; set various window properties
+      window/enable-full-screen!
+      window/add-listener!)))
+
+(defn- create-stack-pane
+  [thread-context]
+  (let [stack-trace-text
+        (binding [*out* (java.io.StringWriter.)]
+          (doseq [ste (:stack-trace thread-context)]
+            (clojure.stacktrace/print-trace-element ste)
+            (println))
+          (str *out*))]
+    (s/text
+      :text stack-trace-text
+      :multi-line? true
+      :editable? false
+      :rows 6)))
+
+(defn create-break-window
+  [repl-handle thread-context]
+  (let [console (editors/create-console "clj")
+        stack-pane (create-stack-pane thread-context)
+        console-pane (repl/create-pane console)
+        frame (s/frame :title "Nightrepl"
+                       :content (s/top-bottom-split (s/scrollable stack-pane) console-pane)
+                       :on-close :nothing ; can not close break point windows
+                       :size [800 :by 600])]
+    (repl/start-pane console-pane console repl-handle #(s/dispose! frame))
+    (doto frame
+      ; set various window properties
+      window/enable-full-screen!
+      window/add-listener!)
+    [frame stack-pane console-pane]))
   
-(defn spawn-repl-window
-  [repl-fn]
+(defn spawn-break-window
+  [repl-handle thread-context]
   (s/invoke-later
-    (s/show! (create-window repl-fn))))
+    (do
+      (let [[root stack console] (create-break-window repl-handle thread-context)]
+        (s/show! root)
+        (s/scroll! stack :to :top)))))
 
 (defn -main [& args]
   ; listen for keys while modifier is down
@@ -44,6 +76,6 @@
   (window/set-theme! (custom/parse-args args))
   ; create and display the window
   ; it's important to save the window in the ui/root atom
-  (reset! redl/spawn-repl-window spawn-repl-window)
+  (reset! redl/spawn-repl-window spawn-break-window)
   (s/invoke-later
-    (s/show! (reset! ui/root (create-window)))))
+    (s/show! (reset! ui/root (create-root-window)))))

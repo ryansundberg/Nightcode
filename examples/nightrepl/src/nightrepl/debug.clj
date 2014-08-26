@@ -30,14 +30,15 @@
 (defn- depth-prefix
   [depth]
   (if (> depth 0)
-    (str "[debug-" depth "] ")
+    (str "[break] ")
     ""))
 
 (defn- debug-prompt
   [debug-repl]
-  (let [state (deref (:state debug-repl))
-        prefix (depth-prefix (:handle debug-repl))]
-    (printf "%s%s=> " prefix (:ns state))))
+  (let [state (deref (:state debug-repl))]
+    (if state
+      (printf "%s%s=> " (depth-prefix (:repl-depth state)) (:ns state))
+      (printf "== finished =="))))
 
 (defn- debug-print
   [debug-repl value]

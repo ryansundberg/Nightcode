@@ -261,6 +261,11 @@
        :out "This repl doesn't exist. You must start a new one.\n"
        :err ""})))
 
+(defn- thread-context
+  [thread]
+  {:thread thread
+   :stack-trace (.getStackTrace thread)})
+
 #_(defn break*
   "Invoke this to drop into a new sub-repl, which
   can return into the parent repl at any time. Must supply
@@ -295,7 +300,7 @@
                          {:ns (ns-name *ns*)
                           :*1 *1 :*2 *2 :*3 *3 :*e *e}
                          locals)]
-        (@spawn-repl-window break-repl)
+        (@spawn-repl-window break-repl (thread-context (Thread/currentThread)))
         (let [result (async/<!! *repl-continue*)]    
           (if (some? (:exception result))
             (throw (:exception result))
