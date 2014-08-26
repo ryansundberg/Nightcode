@@ -15,10 +15,16 @@
     (str "\"" form "\"")
     (str form)))
 
+(defn- debug-read
+  [debug-repl request-prompt request-exit]
+  (if (some? (deref (:state debug-repl)))
+    (clojure.main/repl-read request-prompt request-exit)
+    request-exit))
+
 (defn- debug-eval
   [debug-repl form]
   (let [result (redl/repl-eval (:handle debug-repl) (wrap-form form))]
-    (reset! (:state debug-repl) (select-keys result [:ns :repl-depth]))
+    (reset! (:state debug-repl) (when result (select-keys result [:ns :repl-depth])))
     (:out result)))
 
 (defn- depth-prefix
@@ -39,9 +45,8 @@
 
 (defn- initialize-state
   [repl-handle]
-  (prn "use result: " (redl/repl-eval repl-handle "(use '[nightrepl.redl :only [break continue]])"))
+  (redl/repl-eval repl-handle "(use '[nightrepl.redl :only [break continue]])")
   (let [result (redl/repl-eval repl-handle "nil")]
-    (prn "initialize-state result: " result)
     (select-keys result [:ns :repl-depth])))
 
 (defn run-repl
@@ -50,6 +55,7 @@
   (let [debug-repl {:state (atom (initialize-state handle))
                     :handle handle}
         outer-repl (clojure.main/repl
+                     :read (partial debug-read debug-repl)
                      :prompt (partial debug-prompt debug-repl)
                      :eval (partial debug-eval debug-repl)
                      :print (partial debug-print debug-repl))]

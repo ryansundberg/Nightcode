@@ -119,9 +119,13 @@
   (loop [state state]
     (let [state' (eval-with-state-and-locals
                    (async/<!! *repl-input*) state locals)]
-      (async/>!! *repl-output* state')
-      (when (some? state')
-        (recur state')))))
+      (if (some? state')     
+        (do
+          (async/>!! *repl-output* state')
+          (recur state'))
+        (do
+          (async/close! *repl-input*)
+          (async/close! *repl-output*))))))
 
 (defn eval-worker
   "Creates an eval worker thread that can transfer its IO control
@@ -154,8 +158,10 @@
     (async/alt!!
       worker-out
       ([state]
-       (async/>!! out state)
-       [false state])
+        (if (some? state)
+          (async/>!! out state)
+          (async/close! out))
+        [false state])
       ;t ; disable timeouts
       #_([_]
        (async/>!! out (assoc latest-state
@@ -231,7 +237,8 @@
               ;; Not busy, do a new eval
               (do (async/>!! @worker-in form)
                 (let [[busy state] (do-wait latest-state @worker-out out)]
-                  (recur busy state)))))))
+                  (when (some? state)
+                    (recur busy state))))))))
       id)))
 
 (defn make-repl
@@ -244,15 +251,17 @@
   "Takes a repl id and a form, and evaluates that form on the given repl."
   [repl form]
   (if-let [[input output] (@supervisors repl)]
-    (do (async/>!! input form)
-        (-> (async/<!! output)
-            (select-keys [:out :err :repl-depth :ns])))
+    (do 
+      (async/>!! input form)
+      (let [result (async/<!! output)]
+        (when result
+          (select-keys result [:out :err :repl-depth :ns]))))
     (do
       {:ns 'user
        :out "This repl doesn't exist. You must start a new one.\n"
        :err ""})))
 
-(defn break*
+#_(defn break*
   "Invoke this to drop into a new sub-repl, which
   can return into the parent repl at any time. Must supply
   locals, that will be in scope in the new subrepl."
@@ -261,7 +270,7 @@
     (throw (ex-info "You cannot call break outside of a REDL repl." {})))
   (try
     (binding [*repl-depth* (inc *repl-depth*)]
-      #_(async/>!! *repl-output* {:out "Encountered break, waiting for input...\n"
+      (async/>!! *repl-output* {:out "Encountered break, waiting for input...\n"
                                 :err ""
                                 :ns (ns-name *ns*)
                                 :repl-depth *repl-depth*})
@@ -287,7 +296,10 @@
                           :*1 *1 :*2 *2 :*3 *3 :*e *e}
                          locals)]
         (@spawn-repl-window break-repl)
-        (async/<!! *repl-continue*)))))
+        (let [result (async/<!! *repl-continue*)]    
+          (if (some? (:exception result))
+            (throw (:exception result))
+            (:value result)))))))
 
 (defmacro break
   "Invoke this to drop into a new sub-repl. It will automatically capture
@@ -304,17 +316,20 @@
         value#
         debug-result#))))
 
-(defn continue
+(defn continue*
+  [value]
+  (when (zero? *repl-depth*)
+    (throw (ex-info "Cannot call continue when not in a break statement!" {})))
+  (async/>!! *repl-continue* value)
+  ::continue)
+
+(defmacro continue
   "Invoke this from inside a debug repl to return up a level.
   
   If no value is provided, the corresponding `(break argument)` will return
   its argument or `nil` if invoked as `(break)`. If a value is provided,
   `break` will return that value and discard the provided argument."
   ([]
-   (continue ::no-arg))
+   `(continue ::no-arg))
   ([value]
-   (when (zero? *repl-depth*)
-     (throw (ex-info "Cannot call continue when not in a break statement!" {})))
-   (async/>!! *repl-continue* value)
-   ::continue))
-
+    `(continue* (try {:value ~value} (catch Throwable e# {:exception e#})))))

@@ -17,7 +17,7 @@
           pane (repl/create-pane console)
           frame (s/frame :title "Nightrepl"
                      :content pane
-                     :on-close (if repl-handle :nothing :exit) ; can not close break point windows
+                     :on-close (if (some? repl-handle) :nothing :exit) ; can not close break point windows
                      :size [800 :by 600])]
       (repl/start-pane pane console repl-handle #(s/dispose! frame))
       (doto frame
