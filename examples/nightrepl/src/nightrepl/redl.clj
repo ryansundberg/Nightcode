@@ -29,9 +29,6 @@
             (pprint arg)
             (println arg)))))
 
-(def read-fn
-  (atom read-string))
-
 ;This var tracks how many nested breaks there are active
 (def ^:dynamic *repl-depth* 0)
 (def ^:dynamic *repl-continue* nil)
@@ -83,7 +80,7 @@
               repl-thread (atom (Thread/currentThread))
               result (try
                        (in-ns (:ns state))
-                       (eval-with-locals locals (@read-fn form))
+                       (eval-with-locals locals (first form))
                        (catch Throwable t
                          (do
                            (doto (clojure.main/repl-exception t)
@@ -247,12 +244,12 @@
   ([ns]
    (eval-supervisor ns)))
 
-(defn repl-eval
+(defn repl-eval-form
   "Takes a repl id and a form, and evaluates that form on the given repl."
   [repl form]
   (if-let [[input output] (@supervisors repl)]
     (do 
-      (async/>!! input form)
+      (async/>!! input [form])
       (let [result (async/<!! output)]
         (when result
           (select-keys result [:out :err :repl-depth :ns]))))
@@ -261,10 +258,40 @@
        :out "This repl doesn't exist. You must start a new one.\n"
        :err ""})))
 
+(defn repl-eval
+  [repl form-str]
+  (repl-eval-form repl (read-string form-str)))
+
+(defn- truncate-reverse-stack-bottom
+  [stack-trace]
+  (if-let [ste (first stack-trace)]
+    (if (= "nightrepl.redl$eval_with_locals" (.getClassName ste))
+      (rest stack-trace)
+      (recur (rest stack-trace)))
+    []))
+
+(defn- truncate-stack-trace-bottom
+  [stack-trace]
+  (reverse (truncate-reverse-stack-bottom (reverse stack-trace))))
+
+(defn- truncate-stack-trace-top
+  [stack-trace]
+  (if-let [ste (first stack-trace)]
+    (if (= "nightrepl.redl$break_with_window_STAR_" (.getClassName ste))
+      (rest stack-trace)
+      (recur (rest stack-trace)))
+    []))
+
+(defn- truncate-stack-trace
+  [stack-trace]
+  (-> stack-trace
+    truncate-stack-trace-top
+    truncate-stack-trace-bottom))
+
 (defn- thread-context
   [thread]
   {:thread thread
-   :stack-trace (.getStackTrace thread)})
+   :stack-trace (truncate-stack-trace (.getStackTrace thread))})
 
 #_(defn break*
   "Invoke this to drop into a new sub-repl, which

@@ -1,58 +1,81 @@
 (ns nightrepl.core
   (:require [nightcode.customizations :as custom]
             [nightcode.editors :as editors]
-            [nightrepl.repl :as repl]
             [nightcode.shortcuts :as shortcuts]
             [nightcode.ui :as ui]
             [nightcode.window :as window]
+            [nightcode.lein :as lein]
+            [nightcode.utils :as utils]
+            [nightcode.sandbox :as sandbox]
             [nightrepl.redl :as redl]
             [nightrepl.debug :as debug]
-            [seesaw.core :as s])
+            [seesaw.core :as s]
+            [clj-stacktrace.repl :as strace]
+            [clj-stacktrace.core :refer [parse-trace-elem]])
   (:gen-class))
 
-(defn create-root-window
-  []
-  (let [console (editors/create-console "clj")
-        pane (repl/create-pane console)
-        frame (s/frame :title "Nightrepl"
-                       :content pane
-                       :on-close :exit ; can not close break point windows
-                       :size [800 :by 600])]
-    (repl/start-pane pane console nil #(s/dispose! frame))
-    (doto frame
-      ; set various window properties
-      window/enable-full-screen!
-      window/add-listener!)))
+(defn- get-console-text-area
+  [console]
+  (.getView (.getViewport console)))
+
+(defn- run-repl!
+  "Starts a REPL process."
+  [process in-out repl-handle end-callback]
+  (lein/stop-process! process)
+  (lein/start-thread! in-out 
+                      (if repl-handle
+                        (debug/run-repl repl-handle)
+                        (debug/repl))
+                      (end-callback)))
+
+(defn- create-repl-pane
+  "Returns the pane with the REPL."
+  [console]
+  (let [pane (s/config! console :id :repl-console)]
+    (utils/set-accessible-name! (.getTextArea pane) :repl-console)
+    ; return the repl pane
+    pane))
+
+(defn- start-repl-pane
+  [pane console repl-handle repl-terminate-callback]
+  (let [process (atom nil)
+        run! (fn [& _]
+               (s/request-focus! (get-console-text-area console))
+               (run-repl! process (ui/get-io! console) repl-handle repl-terminate-callback))]
+    ; start the repl
+    (run!)
+    ; create a shortcut to restart the repl
+    (when-not (sandbox/get-dir)
+      (shortcuts/create-hints! pane)
+      (shortcuts/create-mappings! pane {:repl-console run!}))))
 
 (defn- create-stack-pane
   [thread-context]
-  (let [stack-trace-text
-        (binding [*out* (java.io.StringWriter.)]
-          (doseq [ste (:stack-trace thread-context)]
-            (clojure.stacktrace/print-trace-element ste)
-            (println))
-          (str *out*))]
-    (s/text
-      :text stack-trace-text
-      :multi-line? true
-      :editable? false
-      :rows 6)))
+  (let [stack-console (editors/create-console "clj")
+        [stack-in stack-out] (ui/get-io! stack-console)]
+    (strace/pst-elems-on stack-out false (map parse-trace-elem (:stack-trace thread-context)))
+    (doto (get-console-text-area stack-console)
+      (.setReadOnly true)
+      (.disable))
+    ;(.close stack-in)
+    ;(.close stack-out)
+    stack-console))
 
 (defn create-break-window
   [repl-handle thread-context]
   (let [console (editors/create-console "clj")
         stack-pane (create-stack-pane thread-context)
-        console-pane (repl/create-pane console)
-        frame (s/frame :title "Nightrepl"
-                       :content (s/top-bottom-split (s/scrollable stack-pane) console-pane)
+        repl-pane (create-repl-pane console)
+        frame (s/frame :title "Nightrepl [breakpoint]"
+                       :content (s/top-bottom-split stack-pane repl-pane)
                        :on-close :nothing ; can not close break point windows
-                       :size [800 :by 600])]
-    (repl/start-pane console-pane console repl-handle #(s/dispose! frame))
+                       :size [800 :by 300])]
+    (start-repl-pane repl-pane console repl-handle #(s/dispose! frame))
     (doto frame
       ; set various window properties
       window/enable-full-screen!
       window/add-listener!)
-    [frame stack-pane console-pane]))
+    [frame stack-pane repl-pane]))
   
 (defn spawn-break-window
   [repl-handle thread-context]
@@ -60,7 +83,23 @@
     (do
       (let [[root stack console] (create-break-window repl-handle thread-context)]
         (s/show! root)
-        (s/scroll! stack :to :top)))))
+        (s/scroll! stack :to :top)
+        (s/request-focus! (get-console-text-area console))))))
+
+(defn create-root-window
+  []
+  (let [console (editors/create-console "clj")
+        pane (create-repl-pane console)
+        frame (s/frame :title "Nightrepl"
+                       :content pane
+                       :on-close :exit ; can not close break point windows
+                       :size [800 :by 600])]
+    (start-repl-pane pane console nil #(s/dispose! frame))
+    (doto frame
+      ; set various window properties
+      window/enable-full-screen!
+      window/add-listener!)
+    [frame]))
 
 (defn -main [& args]
   ; listen for keys while modifier is down
@@ -78,4 +117,4 @@
   ; it's important to save the window in the ui/root atom
   (reset! redl/spawn-repl-window spawn-break-window)
   (s/invoke-later
-    (s/show! (reset! ui/root (create-root-window)))))
+    (s/show! (reset! ui/root (first (create-root-window))))))

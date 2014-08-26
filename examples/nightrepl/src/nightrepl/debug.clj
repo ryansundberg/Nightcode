@@ -23,7 +23,7 @@
 
 (defn- debug-eval
   [debug-repl form]
-  (let [result (redl/repl-eval (:handle debug-repl) (wrap-form form))]
+  (let [result (redl/repl-eval-form (:handle debug-repl) form)]
     (reset! (:state debug-repl) (when result (select-keys result [:ns :repl-depth])))
     (:out result)))
 
@@ -46,8 +46,9 @@
 
 (defn- initialize-state
   [repl-handle]
-  (redl/repl-eval repl-handle "(use '[nightrepl.redl :only [break continue]])")
-  (let [result (redl/repl-eval repl-handle "nil")]
+  (prn (redl/repl-eval-form repl-handle '(use '[nightrepl.redl :only [break continue]])))
+  (let [result (redl/repl-eval-form repl-handle nil)]
+    (prn result)
     (select-keys result [:ns :repl-depth])))
 
 (defn run-repl
